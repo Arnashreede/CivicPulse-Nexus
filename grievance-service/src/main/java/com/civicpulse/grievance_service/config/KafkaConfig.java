@@ -13,6 +13,14 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.civicpulse.grievance_service.event.GrievanceCreatedEvent;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.serializer.JsonSerializer;
+
 @Configuration
 public class KafkaConfig {
 
@@ -47,5 +55,21 @@ public class KafkaConfig {
         factory.setConsumerFactory(consumerFactory());
 
         return factory;
+    }
+    @Bean
+public ProducerFactory<String, GrievanceCreatedEvent> producerFactory() {
+
+    Map<String, Object> config = new HashMap<>();
+
+    config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+
+    return new DefaultKafkaProducerFactory<>(config);
+}
+
+@Bean
+    public KafkaTemplate<String, GrievanceCreatedEvent> kafkaTemplate() {
+        return new KafkaTemplate<>(producerFactory());
     }
 }

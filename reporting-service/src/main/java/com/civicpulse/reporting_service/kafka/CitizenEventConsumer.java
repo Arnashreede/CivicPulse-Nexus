@@ -15,7 +15,11 @@ public class CitizenEventConsumer {
         this.repository = repository;
     }
 
-    @KafkaListener(topics = "citizen-events", groupId = "reporting-group")
+    @KafkaListener(
+    topics = "citizen-events",
+    groupId = "reporting-group",
+    containerFactory = "kafkaListenerContainerFactory"
+)
     public void consume(CitizenRegisteredEvent event) {
 
         CitizenReport report = new CitizenReport();

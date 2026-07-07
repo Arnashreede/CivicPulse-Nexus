@@ -13,6 +13,8 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.civicpulse.reporting_service.event.GrievanceCreatedEvent;
+
 @Configuration
 public class KafkaConfig {
 
@@ -48,4 +50,41 @@ public class KafkaConfig {
 
         return factory;
     }
+
+    @Bean
+public ConsumerFactory<String, GrievanceCreatedEvent> grievanceConsumerFactory() {
+
+    JsonDeserializer<GrievanceCreatedEvent> deserializer =
+            new JsonDeserializer<>(GrievanceCreatedEvent.class);
+
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeHeaders(false);
+
+    deserializer.addTrustedPackages("*");
+
+    Map<String, Object> config = new HashMap<>();
+
+    config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+    config.put(ConsumerConfig.GROUP_ID_CONFIG, "reporting-group");
+    config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+
+    return new DefaultKafkaConsumerFactory<>(
+            config,
+            new StringDeserializer(),
+            deserializer
+    );
+}
+
+@Bean(name = "grievanceKafkaListenerContainerFactory")
+    public ConcurrentKafkaListenerContainerFactory<String, GrievanceCreatedEvent>
+        grievanceKafkaListenerContainerFactory() {
+
+            ConcurrentKafkaListenerContainerFactory<String, GrievanceCreatedEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(grievanceConsumerFactory());
+
+    return factory;
+}
 }

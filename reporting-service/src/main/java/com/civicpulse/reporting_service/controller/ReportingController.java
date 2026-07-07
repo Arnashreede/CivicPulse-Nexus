@@ -1,0 +1,36 @@
+package com.civicpulse.reporting_service.controller;
+
+import com.civicpulse.reporting_service.entity.CitizenReport;
+import com.civicpulse.reporting_service.entity.GrievanceReport;
+import com.civicpulse.reporting_service.service.ReportingService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import com.civicpulse.reporting_service.dto.DashboardResponse;
+
+@RestController
+@RequestMapping("/reports")
+public class ReportingController {
+
+    private final ReportingService reportingService;
+
+    public ReportingController(ReportingService reportingService) {
+        this.reportingService = reportingService;
+    }
+
+    @GetMapping("/citizens")
+    public List<CitizenReport> getCitizens() {
+        return reportingService.getAllCitizens();
+    }
+
+    @GetMapping("/grievances")
+    public List<GrievanceReport> getGrievances() {
+        return reportingService.getAllGrievances();
+    }
+
+    @GetMapping("/dashboard")
+public DashboardResponse dashboard() {
+    return reportingService.getDashboard();
+}
+
+}
