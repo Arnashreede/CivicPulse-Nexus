@@ -14,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
-//@Component
+@Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
@@ -29,6 +29,14 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        // Allow login and registration without JWT
+        String path = request.getServletPath();
+
+        if (path.startsWith("/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -37,24 +45,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 String token = authHeader.substring(7);
 
-String username = jwtService.extractUsername(token);
-String role = jwtService.extractRole(token);
+                String username = jwtService.extractUsername(token);
 
-// Debug prints
-System.out.println("Username: " + username);
-System.out.println("Role: " + role);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                username,
+                                null,
+                                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                        );
 
-UsernamePasswordAuthenticationToken authentication =
-        new UsernamePasswordAuthenticationToken(
-                username,
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_" + role))
-        );
-
-SecurityContextHolder.getContext().setAuthentication(authentication);
-
-// Debug print
-System.out.println(SecurityContextHolder.getContext().getAuthentication());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (JwtException e) {
 

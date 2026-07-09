@@ -9,20 +9,24 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/citizens")
+@CrossOrigin(origins = "http://localhost:5173")
 public class CitizenController {
+
 
     @Autowired
     private CitizenService citizenService;
 
-    @PostMapping
-    public Citizen addCitizen(@RequestBody Citizen citizen) {
-        return citizenService.saveCitizen(citizen);
-    }
-
     @GetMapping
-    public List<Citizen> getAllCitizens() {
-        return citizenService.getAllCitizens();
-    }
+public List<Citizen> getAllCitizens() {
+    System.out.println("GET endpoint called");
+    return citizenService.getAllCitizens();
+}
+
+@PostMapping
+public Citizen addCitizen(@RequestBody Citizen citizen) {
+    System.out.println("POST endpoint called");
+    return citizenService.saveCitizen(citizen);
+}
 
     @GetMapping("/{id}")
     public Citizen getCitizen(@PathVariable Long id) {

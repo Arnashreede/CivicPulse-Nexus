@@ -2,25 +2,36 @@ spring:
   application:
     name: api-gateway
 
-  cloud:
+  webmvc:
     gateway:
-      server:
-        webmvc:
-          routes:
-            - id: user-service
-              uri: lb://USER-SERVICE
-              predicates:
-                - Path=/auth/**,/users/**
+      routes:
+        - id: user-service
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/auth/**,/users/**
 
-            - id: citizen-service
-              uri: lb://CITIZEN-SERVICE
-              predicates:
-                - Path=/citizens/**
+        - id: citizen-service
+          uri: lb://CITIZEN-SERVICE
+          predicates:
+            - Path=/citizens/**
 
-            - id: grievance-service
-              uri: lb://GRIEVANCE-SERVICE
-              predicates:
-                - Path=/grievances/**
+        - id: grievance-service
+          uri: lb://GRIEVANCE-SERVICE
+          predicates:
+            - Path=/grievances/**
+
+      cors:
+        mappings:
+          "[/**]":
+            allowedOrigins: "http://localhost:5173"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
 
 server:
   port: 8080
