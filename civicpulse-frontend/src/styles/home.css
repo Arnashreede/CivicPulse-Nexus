@@ -1,0 +1,99 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+.home{
+    min-height:100vh;
+    background:linear-gradient(135deg,#1565C0,#42A5F5);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    width:90%;
+    max-width:1300px;
+    text-align:center;
+}
+
+.title{
+    color:white;
+    font-size:52px;
+    font-weight:700;
+}
+
+.subtitle{
+    color:white;
+    margin-top:10px;
+    font-size:20px;
+    margin-bottom:50px;
+}
+
+.cards{
+
+    display:flex;
+    justify-content:center;
+    gap:35px;
+    flex-wrap:wrap;
+
+}
+
+.card{
+
+    width:330px;
+    background:white;
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 12px 35px rgba(0,0,0,.2);
+    transition:.3s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-12px);
+
+}
+
+.icon{
+
+    font-size:70px;
+
+}
+
+.card h2{
+
+    margin:20px 0;
+
+}
+
+.card p{
+
+    color:#666;
+    line-height:1.6;
+
+}
+
+.btn{
+
+    width:100%;
+    margin-top:25px;
+    padding:14px;
+    background:#1565C0;
+    color:white;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:17px;
+    transition:.3s;
+
+}
+
+.btn:hover{
+
+    background:#0D47A1;
+
+}

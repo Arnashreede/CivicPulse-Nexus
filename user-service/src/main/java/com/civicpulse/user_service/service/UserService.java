@@ -38,7 +38,7 @@ public class UserService {
 
     // Login User
     public String login(LoginRequest request) {
-
+        System.out.println("USERNAME RECEIVED = " + request.getUsername());
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -51,4 +51,10 @@ public class UserService {
             user.getRole()
         );
     }
+    public User findByUsername(String username) {
+
+    return userRepository.findByUsername(username)
+            .orElseThrow(() ->
+                    new RuntimeException("User not found"));
+}
 }

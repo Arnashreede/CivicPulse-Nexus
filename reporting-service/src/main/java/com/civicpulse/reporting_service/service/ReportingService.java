@@ -55,5 +55,7 @@ public class ReportingService {
             highPriorityGrievances
     );
 }
-
+public long getCitizenCount() {
+    return citizenRepository.count();
+}
 }

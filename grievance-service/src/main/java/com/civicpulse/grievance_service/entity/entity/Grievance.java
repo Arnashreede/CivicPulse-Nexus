@@ -18,15 +18,18 @@ public class Grievance {
 
     private String category;
 
-    private String status;
+    private String status = "OPEN";
 
-    private String priority;
+    private String priority = "LOW";
+
+    private String assignedOfficer = "";
 
     public Grievance() {
     }
 
     public Grievance(Long id, Long citizenId, String title, String description,
-                      String category, String status, String priority) {
+                     String category, String status, String priority,
+                     String assignedOfficer) {
         this.id = id;
         this.citizenId = citizenId;
         this.title = title;
@@ -34,6 +37,7 @@ public class Grievance {
         this.category = category;
         this.status = status;
         this.priority = priority;
+        this.assignedOfficer = assignedOfficer;
     }
 
     public Long getId() {
@@ -90,5 +94,13 @@ public class Grievance {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+
+    public String getAssignedOfficer() {
+        return assignedOfficer;
+    }
+
+    public void setAssignedOfficer(String assignedOfficer) {
+        this.assignedOfficer = assignedOfficer;
     }
 }

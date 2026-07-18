@@ -32,5 +32,9 @@ public class ReportingController {
 public DashboardResponse dashboard() {
     return reportingService.getDashboard();
 }
+@GetMapping("/citizens/count")
+public long getCitizenCount() {
+    return reportingService.getCitizenCount();
+}
 
 }

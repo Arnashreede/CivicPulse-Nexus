@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/citizens")
@@ -21,9 +22,8 @@ public List<Citizen> getAllCitizens() {
     System.out.println("GET endpoint called");
     return citizenService.getAllCitizens();
 }
-
 @PostMapping
-public Citizen addCitizen(@RequestBody Citizen citizen) {
+public Citizen addCitizen(@Valid @RequestBody Citizen citizen) {
     System.out.println("POST endpoint called");
     return citizenService.saveCitizen(citizen);
 }
@@ -38,4 +38,8 @@ public Citizen addCitizen(@RequestBody Citizen citizen) {
         citizenService.deleteCitizen(id);
         return "Citizen deleted successfully";
     }
+    @GetMapping("/dashboard/count")
+public long getTotalCitizens() {
+    return citizenService.getTotalCitizens();
+}
 }

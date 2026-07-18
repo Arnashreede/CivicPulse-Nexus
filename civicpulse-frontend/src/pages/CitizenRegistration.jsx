@@ -1,14 +1,18 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import { registerCitizen } from "../services/citizenService";
+
 function CitizenRegistration() {
+
   const [citizen, setCitizen] = useState({
-  fullName: "",
-  email: "",
-  phone: "",
-  address: "",
-  aadhaarNumber: "",
-});
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    aadhaarNumber: "",
+  });
+
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setCitizen({
@@ -17,29 +21,76 @@ function CitizenRegistration() {
     });
   };
 
+  const validate = () => {
+
+    let temp = {};
+
+    // Full Name
+    if (!citizen.fullName.trim()) {
+      temp.fullName = "Full Name is required";
+    } else if (!/^[A-Za-z ]+$/.test(citizen.fullName)) {
+      temp.fullName = "Only letters and spaces are allowed";
+    }
+
+    // Email
+    if (!citizen.email.trim()) {
+      temp.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(citizen.email)) {
+      temp.email = "Enter a valid email";
+    }
+
+    // Phone
+    if (!citizen.phone.trim()) {
+      temp.phone = "Phone Number is required";
+    } else if (!/^[6-9]\d{9}$/.test(citizen.phone)) {
+      temp.phone = "Phone must be 10 digits and start with 6-9";
+    }
+
+    // Aadhaar
+    if (!citizen.aadhaarNumber.trim()) {
+      temp.aadhaarNumber = "Aadhaar Number is required";
+    } else if (!/^\d{12}$/.test(citizen.aadhaarNumber)) {
+      temp.aadhaarNumber = "Aadhaar must contain exactly 12 digits";
+    }
+
+    // Address
+    if (!citizen.address.trim()) {
+      temp.address = "Address is required";
+    }
+
+    setErrors(temp);
+
+    return Object.keys(temp).length === 0;
+  };
+
   const handleSubmit = async () => {
 
-  try {
+    if (!validate()) return;
 
-    await registerCitizen(citizen);
+    try {
 
-    alert("Citizen Registered Successfully");
+      await registerCitizen(citizen);
 
-    setCitizen({
-      fullName: "",
-      email: "",
-      phone: "",
-      address: "",
-      aadhaarNumber: "",
-    });
+      alert("Citizen Registered Successfully");
 
-  } catch (error) {
+      setCitizen({
+        fullName: "",
+        email: "",
+        phone: "",
+        address: "",
+        aadhaarNumber: "",
+      });
 
-    console.error(error);
+      setErrors({});
 
-    alert("Registration Failed");
-  }
-};
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Registration Failed");
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -56,46 +107,90 @@ function CitizenRegistration() {
       >
         <h2>Register Citizen</h2>
 
-       <input
-  name="fullName"
-  placeholder="Full Name"
-  value={citizen.fullName}
-  onChange={handleChange}
-  style={inputStyle}
-/>
+        {/* Full Name */}
 
-<input
-  name="email"
-  placeholder="Email"
-  value={citizen.email}
-  onChange={handleChange}
-  style={inputStyle}
-/>
+        <input
+          name="fullName"
+          placeholder="Enter Full Name"
+          value={citizen.fullName}
+          onChange={handleChange}
+          style={inputStyle}
+        />
 
-<input
-  name="phone"
-  placeholder="Phone"
-  value={citizen.phone}
-  onChange={handleChange}
-  style={inputStyle}
-/>
+        <small style={helperStyle}>
+          Only letters and spaces allowed.
+        </small>
 
-<input
-  name="aadhaarNumber"
-  placeholder="Aadhaar Number"
-  value={citizen.aadhaarNumber}
-  onChange={handleChange}
-  style={inputStyle}
-/>
+        <p style={errorStyle}>{errors.fullName}</p>
 
-<textarea
-  name="address"
-  placeholder="Address"
-  value={citizen.address}
-  onChange={handleChange}
-  style={{ ...inputStyle, height: "80px" }}
-/>
-        <button onClick={handleSubmit} style={buttonStyle}>
+        {/* Email */}
+
+        <input
+          name="email"
+          placeholder="Enter Email"
+          value={citizen.email}
+          onChange={handleChange}
+          style={inputStyle}
+        />
+
+        <small style={helperStyle}>
+          Example: abc@gmail.com
+        </small>
+
+        <p style={errorStyle}>{errors.email}</p>
+
+        {/* Phone */}
+
+        <input
+          name="phone"
+          placeholder="Enter Phone Number"
+          value={citizen.phone}
+          onChange={handleChange}
+          style={inputStyle}
+        />
+
+        <small style={helperStyle}>
+          Must be 10 digits and start with 6, 7, 8 or 9.
+        </small>
+
+        <p style={errorStyle}>{errors.phone}</p>
+
+        {/* Aadhaar */}
+
+        <input
+          name="aadhaarNumber"
+          placeholder="Enter Aadhaar Number"
+          value={citizen.aadhaarNumber}
+          onChange={handleChange}
+          style={inputStyle}
+        />
+
+        <small style={helperStyle}>
+          Aadhaar must contain exactly 12 digits.
+        </small>
+
+        <p style={errorStyle}>{errors.aadhaarNumber}</p>
+
+        {/* Address */}
+
+        <textarea
+          name="address"
+          placeholder="Enter Complete Address"
+          value={citizen.address}
+          onChange={handleChange}
+          style={{ ...inputStyle, height: "80px" }}
+        />
+
+        <small style={helperStyle}>
+          Enter your complete residential address.
+        </small>
+
+        <p style={errorStyle}>{errors.address}</p>
+
+        <button
+          onClick={handleSubmit}
+          style={buttonStyle}
+        >
           Register Citizen
         </button>
       </div>
@@ -106,7 +201,22 @@ function CitizenRegistration() {
 const inputStyle = {
   width: "100%",
   padding: "12px",
-  marginBottom: "15px",
+  marginTop: "5px",
+  marginBottom: "5px",
+  borderRadius: "5px",
+  border: "1px solid #ccc",
+};
+
+const helperStyle = {
+  color: "#666",
+  fontSize: "12px",
+};
+
+const errorStyle = {
+  color: "red",
+  fontSize: "13px",
+  marginTop: "3px",
+  marginBottom: "12px",
 };
 
 const buttonStyle = {
@@ -115,7 +225,9 @@ const buttonStyle = {
   background: "#1565C0",
   color: "white",
   border: "none",
+  borderRadius: "5px",
   cursor: "pointer",
+  fontSize: "16px",
 };
 
 export default CitizenRegistration;

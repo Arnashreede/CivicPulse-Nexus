@@ -31,4 +31,7 @@ public class CitizenService {
     public void deleteCitizen(Long id) {
         citizenRepository.deleteById(id);
     }
+    public long getTotalCitizens() {
+    return citizenRepository.count();
+}
 }

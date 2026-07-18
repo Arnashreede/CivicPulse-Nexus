@@ -14,7 +14,7 @@ public class GrievanceEventProducer {
     }
 
     public void publishGrievanceCreatedEvent(GrievanceCreatedEvent event) {
-        kafkaTemplate.send("grievance-events", event);
+        kafkaTemplate.send("grievance-created", event);
         System.out.println("Published Grievance Event: " + event.getTitle());
     }
 }

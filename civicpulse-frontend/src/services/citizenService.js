@@ -1,11 +1,11 @@
-import api from "../api/axios";
+import citizenApi from "../api/citizenAxios";
 
 export const registerCitizen = async (citizen) => {
-  const response = await api.post("/citizens", citizen);
+  const response = await citizenApi.post("/citizens", citizen);
   return response.data;
 };
 
 export const getAllCitizens = async () => {
-  const response = await api.get("/citizens");
+  const response = await citizenApi.get("/citizens");
   return response.data;
 };

@@ -1,6 +1,5 @@
 package com.civicpulse.citizen_service.security;
 
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,10 +33,10 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
             try {
+
                 String token = authHeader.substring(7);
-                System.out.println("TOKEN = " + token);
+
                 String username = jwtService.extractUsername(token);
-                System.out.println("USERNAME = " + username);
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -49,13 +48,10 @@ public class JwtFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception e) {
-    e.printStackTrace();
 
-    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    response.getWriter().write(e.getMessage());
-
-    return;
-}
+                // Ignore invalid token and continue
+                SecurityContextHolder.clearContext();
+            }
         }
 
         filterChain.doFilter(request, response);

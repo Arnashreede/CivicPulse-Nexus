@@ -1,176 +1,138 @@
-import Navbar from "../components/Navbar";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
+import DashboardCharts from "../components/DashboardCharts";
+
+import { getDashboardCounts } from "../services/dashboardService";
+import { getAllGrievances } from "../services/grievanceService";
 
 function Dashboard() {
+
+  const [counts, setCounts] = useState({
+    totalCitizens: 0,
+    totalOfficers: 0,
+    totalGrievances: 0,
+    pending: 0,
+  });
+
+  const [grievances, setGrievances] = useState([]);
+
+  useEffect(() => {
+    loadDashboard();
+    loadGrievances();
+  }, []);
+
+  const loadDashboard = async () => {
+    try {
+      const data = await getDashboardCounts();
+      setCounts(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loadGrievances = async () => {
+    try {
+      const data = await getAllGrievances();
+      setGrievances(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
-      <Navbar />
+      <Sidebar />
 
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#f4f7fc",
-          padding: "40px",
-        }}
-      >
-        <h1
-          style={{
-            color: "#1565C0",
-            marginBottom: "10px",
-          }}
-        >
-          🏛 CivicPulse Nexus Dashboard
-        </h1>
+      <div style={{ marginLeft: "270px", padding: "20px" }}>
+        <Header />
+      </div>
 
-        <p
-          style={{
-            color: "#555",
-            marginBottom: "35px",
-          }}
-        >
-          Cloud-Native Smart Governance & Citizen Services Platform
+      <div style={container}>
+
+        <h1>🏛 Government Dashboard</h1>
+
+        <p style={{ color: "#666", marginBottom: "30px" }}>
+          Welcome to CivicPulse Nexus Administration Portal
         </p>
 
-        {/* Dashboard Cards */}
+        <div style={cards}>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px,1fr))",
-            gap: "20px",
-          }}
-        >
-          <div style={cardStyle}>
-            <h3>👤 Citizens</h3>
-            <h1>0</h1>
-            <p>Total Registered Citizens</p>
+          <div style={card}>
+            <h2>👤 Citizens</h2>
+            <h1>{counts.totalCitizens}</h1>
+            <p>Registered Citizens</p>
           </div>
 
-          <div style={cardStyle}>
-            <h3>📋 Grievances</h3>
-            <h1>0</h1>
+          <div style={card}>
+            <h2>👮 Officers</h2>
+            <h1>{counts.totalOfficers}</h1>
+            <p>Government Officers</p>
+          </div>
+
+          <div style={card}>
+            <h2>📋 Complaints</h2>
+            <h1>{counts.totalGrievances}</h1>
             <p>Total Complaints</p>
           </div>
 
-          <div style={cardStyle}>
-            <h3>✅ Resolved</h3>
-            <h1>0</h1>
-            <p>Resolved Complaints</p>
+          <div style={card}>
+            <h2>⏳ Pending</h2>
+            <h1>{counts.pending}</h1>
+            <p>Pending Cases</p>
           </div>
 
-          <div style={cardStyle}>
-            <h3>⚠ Pending</h3>
-            <h1>0</h1>
-            <p>Pending Complaints</p>
-          </div>
         </div>
 
-        {/* Quick Actions */}
+        
 
-        <div
-          style={{
-            marginTop: "50px",
-          }}
-        >
-          <h2>Quick Actions</h2>
+        <h2 style={{ marginTop: "60px" }}>
+          📊 Analytics
+        </h2>
 
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "20px",
-              marginTop: "20px",
-            }}
-          >
-            <Link to="/citizen/register">
-              <button style={buttonStyle}>
-                👤 Register Citizen
-              </button>
-            </Link>
+        <DashboardCharts grievances={grievances} />
 
-            <Link to="/citizens">
-              <button style={buttonStyle}>
-                📄 View Citizens
-              </button>
-            </Link>
-
-            <Link to="/grievance/register">
-              <button style={buttonStyle}>
-                📋 Register Grievance
-              </button>
-            </Link>
-
-            <Link to="/grievances">
-              <button style={buttonStyle}>
-                📑 View Grievances
-              </button>
-            </Link>
-          </div>
-        </div>
-
-       {/* Quick Access */}
-
-<div
-  style={{
-    marginTop: "50px",
-    background: "white",
-    padding: "30px",
-    borderRadius: "12px",
-    boxShadow: "0 5px 20px rgba(0,0,0,.1)",
-  }}
->
-  <h2>Quick Access</h2>
-
-  <p style={{ color: "#555" }}>
-    Use the options below to manage citizens and grievances.
-  </p>
-
-  <div
-    style={{
-      display: "flex",
-      gap: "20px",
-      flexWrap: "wrap",
-      marginTop: "25px",
-    }}
-  >
-    <Link to="/citizen/register">
-      <button style={buttonStyle}>➕ Add Citizen</button>
-    </Link>
-
-    <Link to="/citizens">
-      <button style={buttonStyle}>👥 View Citizens</button>
-    </Link>
-
-    <Link to="/grievance/register">
-      <button style={buttonStyle}>📝 Add Grievance</button>
-    </Link>
-
-    <Link to="/grievances">
-      <button style={buttonStyle}>📋 View Grievances</button>
-    </Link>
-  </div>
-</div>
       </div>
     </>
   );
 }
 
-const cardStyle = {
-  background: "white",
-  padding: "30px",
-  borderRadius: "12px",
-  boxShadow: "0 5px 20px rgba(0,0,0,.1)",
-  textAlign: "center",
+const container = {
+  marginLeft: "270px",
+  padding: "40px",
+  background: "#F4F6F9",
+  minHeight: "100vh",
 };
 
-const buttonStyle = {
-  padding: "15px 25px",
-  border: "none",
+const cards = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+  gap: "20px",
+};
+
+const card = {
+  background: "white",
+  borderRadius: "15px",
+  padding: "25px",
+  textAlign: "center",
+  boxShadow: "0 5px 15px rgba(0,0,0,.1)",
+};
+
+const actions = {
+  display: "flex",
+  gap: "20px",
+  flexWrap: "wrap",
+  marginTop: "20px",
+};
+
+const button = {
   background: "#1565C0",
   color: "white",
+  border: "none",
+  padding: "14px 25px",
   borderRadius: "8px",
   cursor: "pointer",
-  fontSize: "16px",
 };
 
 export default Dashboard;

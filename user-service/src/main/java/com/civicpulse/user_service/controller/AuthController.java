@@ -19,7 +19,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
-
         return userService.register(request);
     }
 
@@ -28,6 +27,15 @@ public class AuthController {
 
         String token = userService.login(request);
 
-        return new LoginResponse(token);
+        User user = userService.findByUsername(request.getUsername());
+        System.out.println("ID = " + user.getId());
+System.out.println("USERNAME = " + user.getUsername());
+System.out.println("ROLE = " + user.getRole());
+        return new LoginResponse(
+                token,
+                user.getRole(),
+                user.getId(),
+                user.getUsername()
+        );
     }
 }
