@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { adminLogin } from "../services/adminAuthService";
+import { getOfficerByUsername } from "../services/officerService";
 
 function OfficerLogin() {
 
@@ -26,9 +27,21 @@ function OfficerLogin() {
         login.username,
         login.password
       );
+      console.log(data);
 
+      // Save login details
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
+
+      // Save officer username
+      localStorage.setItem("username", login.username);
+      const officer = await getOfficerByUsername(login.username);
+
+localStorage.setItem("officerName", officer.fullName);
+      // Save userId if backend sends it
+      if (data.userId) {
+        localStorage.setItem("userId", data.userId);
+      }
 
       if (data.role === "OFFICER") {
         navigate("/officer-dashboard");
@@ -36,7 +49,7 @@ function OfficerLogin() {
         alert("Please login through the Officer Portal.");
       }
 
-    } catch {
+    } catch (error) {
       alert("Invalid Username or Password");
     }
 

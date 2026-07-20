@@ -1,20 +1,20 @@
-import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
-function CitizenDashboard() {
 
+function CitizenDashboard() {
     const navigate = useNavigate();
 
     return (
         <>
             <Sidebar />
+
             <div style={{ marginLeft: "270px", padding: "20px" }}>
-    <Header />
-</div>
+                <Header />
+            </div>
 
             <div style={container}>
-
                 <h1>👤 Citizen Dashboard</h1>
 
                 <p style={{ color: "#666" }}>
@@ -23,6 +23,7 @@ function CitizenDashboard() {
 
                 <div style={cards}>
 
+                    {/* Register Complaint */}
                     <div style={card}>
                         <h2>📋</h2>
                         <h3>Register Complaint</h3>
@@ -35,6 +36,7 @@ function CitizenDashboard() {
                         </button>
                     </div>
 
+                    {/* My Complaints */}
                     <div style={card}>
                         <h2>📄</h2>
                         <h3>My Complaints</h3>
@@ -47,6 +49,7 @@ function CitizenDashboard() {
                         </button>
                     </div>
 
+                    {/* Track Status */}
                     <div style={card}>
                         <h2>📍</h2>
                         <h3>Track Status</h3>
@@ -59,19 +62,43 @@ function CitizenDashboard() {
                         </button>
                     </div>
 
+                    {/* Certificates */}
+                    <div style={card}>
+                        <h2>📜</h2>
+                        <h3>Certificates</h3>
+
+                        <Button
+                            variant="contained"
+                            onClick={() => navigate("/certificates")}
+                        >
+                            View Certificates
+                        </Button>
+                    </div>
+
+                    {/* Apply Certificate */}
+                    <div style={card}>
+                        <h2>📑</h2>
+                        <h3>Certificate / Permit</h3>
+
+                        <button
+                            style={button}
+                            onClick={() => navigate("/citizen/application")}
+                        >
+                            Apply
+                        </button>
+                    </div>
+
+                    {/* My Profile */}
                     <div style={card}>
                         <h2>👤</h2>
                         <h3>My Profile</h3>
 
-                        <button
-                            style={button}
-                        >
+                        <button style={button}>
                             Coming Soon
                         </button>
                     </div>
 
                 </div>
-
             </div>
         </>
     );
@@ -86,7 +113,7 @@ const container = {
 
 const cards = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit,minmax(250px,1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
     gap: "20px",
     marginTop: "30px",
 };
@@ -96,7 +123,7 @@ const card = {
     padding: "30px",
     borderRadius: "15px",
     textAlign: "center",
-    boxShadow: "0 5px 15px rgba(0,0,0,.1)",
+    boxShadow: "0 5px 15px rgba(0,0,0,0.1)",
 };
 
 const button = {

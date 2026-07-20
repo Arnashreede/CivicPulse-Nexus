@@ -16,3 +16,9 @@ export const getAllOfficers = async () => {
 export const deleteOfficer = async (id) => {
   return await officerApi.delete(`/officers/${id}`);
 };
+
+// Get Officer By Username
+export const getOfficerByUsername = async (username) => {
+  const response = await officerApi.get(`/officers/username/${username}`);
+  return response.data;
+};

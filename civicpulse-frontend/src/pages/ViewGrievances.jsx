@@ -32,7 +32,7 @@ function ViewGrievances() {
 
       } else if (role === "OFFICER") {
 
-        const officerName = localStorage.getItem("username");
+        const officerName = localStorage.getItem("officerName");
 
         data = await getOfficerGrievances(officerName);
 

@@ -23,7 +23,15 @@ public class Grievance {
     private String priority = "LOW";
 
     private String assignedOfficer = "";
+private String remarks;
 
+public String getRemarks() {
+    return remarks;
+}
+
+public void setRemarks(String remarks) {
+    this.remarks = remarks;
+}
     public Grievance() {
     }
 

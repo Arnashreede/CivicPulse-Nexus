@@ -23,19 +23,26 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody LoginRequest request) {
+public LoginResponse login(@RequestBody LoginRequest request) {
 
-        String token = userService.login(request);
+    String token = userService.login(request);
 
-        User user = userService.findByUsername(request.getUsername());
-        System.out.println("ID = " + user.getId());
-System.out.println("USERNAME = " + user.getUsername());
-System.out.println("ROLE = " + user.getRole());
-        return new LoginResponse(
-                token,
-                user.getRole(),
-                user.getId(),
-                user.getUsername()
-        );
+    User user = userService.findByUsername(request.getUsername());
+
+    String officerName = "";
+
+    if (user.getUsername().equalsIgnoreCase("rahul")) {
+        officerName = "Rahul Sharma";
+    } else if (user.getUsername().equalsIgnoreCase("ravi")) {
+        officerName = "Ravi Gupta";
     }
+
+    return new LoginResponse(
+            token,
+            user.getRole(),
+            user.getId(),
+            user.getUsername(),
+            officerName
+    );
+}
 }

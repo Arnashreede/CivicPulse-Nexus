@@ -2,6 +2,8 @@ package com.civicpulse.grievance_service.controller;
 
 import com.civicpulse.grievance_service.dto.AssignOfficerRequest;
 import com.civicpulse.grievance_service.dto.DashboardCounts;
+import com.civicpulse.grievance_service.dto.UpdateRemarksRequest;
+import com.civicpulse.grievance_service.dto.UpdateStatusRequest;
 import com.civicpulse.grievance_service.entity.Grievance;
 import com.civicpulse.grievance_service.service.GrievanceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,33 +29,25 @@ public class GrievanceController {
         return grievanceService.getAllGrievances();
     }
 
-    // ================= Dashboard =================
-
     @GetMapping("/dashboard/counts")
     public DashboardCounts getDashboardCounts() {
-
-        System.out.println("DASHBOARD API HIT");
-
         return grievanceService.getDashboardCounts();
     }
 
-    // ================= Officer =================
-
     @GetMapping("/officer/{name}")
-    public List<Grievance> getOfficerGrievances(
-            @PathVariable String name) {
-
+    public List<Grievance> getOfficerGrievances(@PathVariable String name) {
         return grievanceService.getOfficerGrievances(name);
     }
 
-    // ================= Get by ID =================
+    @GetMapping("/citizen/{citizenId}")
+    public List<Grievance> getCitizenGrievances(@PathVariable Long citizenId) {
+        return grievanceService.getCitizenGrievances(citizenId);
+    }
 
     @GetMapping("/{id}")
     public Grievance getGrievance(@PathVariable Long id) {
         return grievanceService.getGrievanceById(id);
     }
-
-    // ================= Assign Officer =================
 
     @PutMapping("/{id}/assign")
     public Grievance assignOfficer(
@@ -63,17 +57,21 @@ public class GrievanceController {
         return grievanceService.assignOfficer(id, request);
     }
 
-    // ================= Update Status =================
-
     @PutMapping("/{id}/status")
     public Grievance updateStatus(
             @PathVariable Long id,
-            @RequestParam String status) {
+            @RequestBody UpdateStatusRequest request) {
 
-        return grievanceService.updateStatus(id, status);
+        return grievanceService.updateStatus(id, request.getStatus());
     }
 
-    // ================= Delete =================
+    @PutMapping("/{id}/remarks")
+    public Grievance updateRemarks(
+            @PathVariable Long id,
+            @RequestBody UpdateRemarksRequest request) {
+
+        return grievanceService.updateRemarks(id, request.getRemarks());
+    }
 
     @DeleteMapping("/{id}")
     public String deleteGrievance(@PathVariable Long id) {
@@ -82,17 +80,4 @@ public class GrievanceController {
 
         return "Grievance deleted successfully";
     }
-@GetMapping("/citizen/{citizenId}")
-public List<Grievance> getCitizenGrievances(@PathVariable Long citizenId) {
-
-    System.out.println("Citizen endpoint hit: " + citizenId);
-
-    List<Grievance> grievances = grievanceService.getCitizenGrievances(citizenId);
-
-    System.out.println("Found grievances: " + grievances.size());
-    System.out.println(grievances);
-
-    return grievances;
-}
-
 }

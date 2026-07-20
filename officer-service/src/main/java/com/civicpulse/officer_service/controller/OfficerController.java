@@ -31,6 +31,10 @@ public class OfficerController {
     public Officer getOfficer(@PathVariable Long id) {
         return officerService.getOfficer(id);
     }
+    @GetMapping("/username/{username}")
+public Officer getOfficerByUsername(@PathVariable String username) {
+    return officerService.getOfficerByUsername(username);
+}
 
     @DeleteMapping("/{id}")
     public String deleteOfficer(@PathVariable Long id) {

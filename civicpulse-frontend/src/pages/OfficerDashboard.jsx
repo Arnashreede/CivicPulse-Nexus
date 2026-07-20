@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
-import { getOfficerGrievances } from "../services/officerDashboardService";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import { getOfficerGrievances } from "../services/officerDashboardService";
+import { updateStatus } from "../services/statusService";
+import { updateRemarks } from "../services/remarksService";
 function OfficerDashboard() {
 
     const [grievances, setGrievances] = useState([]);
 
-    const officerName = "Rahul Sharma";
+    const officerName = localStorage.getItem("officerName");
 
     useEffect(() => {
         loadGrievances();
@@ -22,12 +23,24 @@ function OfficerDashboard() {
         }
     };
 
+    const handleStatusUpdate = async (id, status) => {
+        try {
+            await updateStatus(id, status);
+            alert("Status updated successfully");
+            loadGrievances();
+        } catch (error) {
+            console.error(error);
+            alert("Failed to update status");
+        }
+    };
+
     return (
         <>
             <Sidebar />
+
             <div style={{ marginLeft: "270px", padding: "20px" }}>
-    <Header />
-</div>
+                <Header />
+            </div>
 
             <div style={container}>
 
@@ -49,7 +62,7 @@ function OfficerDashboard() {
                         <h2>⏳</h2>
                         <h3>Pending</h3>
                         <h1>
-                            {grievances.filter(g => g.status === "OPEN").length}
+                            {grievances.filter(g => g.status === "PENDING").length}
                         </h1>
                     </div>
 
@@ -85,36 +98,88 @@ function OfficerDashboard() {
                         background: "white",
                     }}
                 >
-
                     <thead>
-
                         <tr>
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                        </tr>
-
+    <th>ID</th>
+    <th>Title</th>
+    <th>Category</th>
+    <th>Priority</th>
+    <th>Status</th>
+    <th>Remarks</th>
+    <th>Change Status</th>
+    <th>Save</th>
+</tr>
                     </thead>
 
                     <tbody>
+    {grievances.map((g) => (
+        <tr key={g.id}>
+            <td>{g.id}</td>
+            <td>{g.title}</td>
+            <td>{g.category}</td>
+            <td>{g.priority}</td>
 
-                        {grievances.map((g) => (
+            <td>{g.status}</td>
 
-                            <tr key={g.id}>
+            <td>
+                <input
+                    type="text"
+                    placeholder="Enter remarks"
+                    defaultValue={g.remarks}
+                    id={`remarks-${g.id}`}
+                    style={{
+                        width: "180px",
+                        padding: "6px",
+                    }}
+                />
+            </td>
 
-                                <td>{g.id}</td>
-                                <td>{g.title}</td>
-                                <td>{g.category}</td>
-                                <td>{g.priority}</td>
-                                <td>{g.status}</td>
+            <td>
+                <select
+                    defaultValue={g.status}
+                    id={`status-${g.id}`}
+                >
+                    <option value="PENDING">PENDING</option>
+                    <option value="IN_PROGRESS">IN PROGRESS</option>
+                    <option value="RESOLVED">RESOLVED</option>
+                    <option value="CLOSED">CLOSED</option>
+                </select>
+            </td>
 
-                            </tr>
+            <td>
+                <button
+    onClick={async () => {
 
-                        ))}
+        const status =
+            document.getElementById(`status-${g.id}`).value;
 
-                    </tbody>
+        const remarks =
+            document.getElementById(`remarks-${g.id}`).value;
+
+        try {
+
+            await updateStatus(g.id, status);
+            await updateRemarks(g.id, remarks);
+
+            alert("Grievance updated successfully");
+
+            loadGrievances();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Failed to update grievance");
+        }
+
+    }}
+>
+    Save
+</button>
+            </td>
+        </tr>
+    ))}
+</tbody>
 
                 </table>
 

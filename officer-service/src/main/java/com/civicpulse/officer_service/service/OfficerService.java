@@ -39,6 +39,9 @@ public class OfficerService {
     public void deleteOfficer(Long id) {
         repository.deleteById(id);
     }
+    public Officer getOfficerByUsername(String username) {
+    return repository.findByUsername(username).orElse(null);
+}
     public long getTotalOfficers() {
     return repository.count();
 }

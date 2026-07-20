@@ -9,6 +9,8 @@ public class Officer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
+private String username;
 
     private String fullName;
 
@@ -80,7 +82,13 @@ public class Officer {
     public String getDesignation() {
         return designation;
     }
+public String getUsername() {
+    return username;
+}
 
+public void setUsername(String username) {
+    this.username = username;
+}
     public void setDesignation(String designation) {
         this.designation=designation;
     }

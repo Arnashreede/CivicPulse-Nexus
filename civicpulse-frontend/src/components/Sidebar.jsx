@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-
+import { Button } from "@mui/material";
 function Sidebar() {
 
   const navigate = useNavigate();
@@ -12,7 +12,6 @@ function Sidebar() {
   };
 
   return (
-
     <div style={sidebar}>
 
       <h2 style={logo}>🏛 CivicPulse</h2>
@@ -43,8 +42,8 @@ function Sidebar() {
           </Link>
 
           <Link style={link} to="/reports">
-    📊 Reports
-</Link>
+            📊 Reports
+          </Link>
         </>
       )}
 
@@ -55,40 +54,52 @@ function Sidebar() {
             📊 Dashboard
           </Link>
 
-
           <Link style={link} to="/grievances">
             📋 Assigned Complaints
+          </Link>
+
+          <Link style={link} to="/officer/applications">
+            📑 Certificate Applications
           </Link>
         </>
       )}
 
       {/* CITIZEN MENU */}
-{role === "CITIZEN" && (
-  <>
-    <Link style={link} to="/citizen-dashboard">
-      🏠 Dashboard
-    </Link>
+      {role === "CITIZEN" && (
+        <>
+          <Link style={link} to="/citizen-dashboard">
+            🏠 Dashboard
+          </Link>
 
-    <Link style={link} to="/grievance/register">
-      📝 Register Complaint
-    </Link>
+          <Link style={link} to="/grievance/register">
+            📝 Register Complaint
+          </Link>
 
-    <Link style={link} to="/track-complaint">
-      📍 Track Complaint
-    </Link>
+          <Link style={link} to="/track-complaint">
+            📍 Track Complaint
+          </Link>
 
-    <Link style={link} to="/notifications">
-      🔔 Notifications
-    </Link>
-  </>
-)}
+          <Link style={link} to="/citizen/application">
+            📑 Apply Certificate / Permit
+          </Link>
+<Link style={link} to="/my-applications">
+    📄 My Applications
+</Link>
+
+          <Link style={link} to="/notifications">
+            🔔 Notifications
+          </Link>
+        </>
+      )}
 
       <button style={logoutBtn} onClick={logout}>
         🚪 Logout
       </button>
+      <Button onClick={() => navigate("/certificates")}>
+    Certificates
+</Button>
 
     </div>
-
   );
 }
 

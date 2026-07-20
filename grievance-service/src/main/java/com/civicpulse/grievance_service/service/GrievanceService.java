@@ -74,6 +74,16 @@ public class GrievanceService {
 
         return grievanceRepository.save(grievance);
     }
+    public Grievance updateRemarks(Long id, String remarks) {
+
+    Grievance grievance = grievanceRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Grievance not found"));
+
+    grievance.setRemarks(remarks);
+
+    return grievanceRepository.save(grievance);
+}
+    
     public DashboardCounts getDashboardCounts() {
 
     long total = grievanceRepository.count();
