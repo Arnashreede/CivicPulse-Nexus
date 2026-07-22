@@ -87,6 +87,7 @@ public ResponseEntity<Application> uploadDocument(
 
     return ResponseEntity.ok(application);
 }
+
 @GetMapping("/{id}/document")
 public ResponseEntity<Resource> viewDocument(@PathVariable Long id) throws IOException {
 

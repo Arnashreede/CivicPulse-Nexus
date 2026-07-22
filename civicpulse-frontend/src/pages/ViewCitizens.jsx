@@ -1,114 +1,160 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  InputAdornment,
+  Chip,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import { DataGrid } from "@mui/x-data-grid";
+
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 import { getAllCitizens } from "../services/citizenService";
 
 function ViewCitizens() {
   const [citizens, setCitizens] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    console.log("useEffect called");
     loadCitizens();
   }, []);
 
   const loadCitizens = async () => {
     try {
-      console.log("Calling API...");
-
       const data = await getAllCitizens();
 
-      console.log("API Response:", data);
+      // Normalize rows for DataGrid
+      const rows = (Array.isArray(data) ? data : []).map((citizen, index) => ({
+        id: citizen.id ?? citizen.citizenId ?? index + 1,
+        fullName: citizen.fullName ?? "",
+        email: citizen.email ?? "",
+        phone: citizen.phone ?? "",
+        aadhaarNumber: citizen.aadhaarNumber ?? "",
+        address: citizen.address ?? "",
+      }));
 
-      setCitizens(data);
+      console.log(rows);
+
+      setCitizens(rows);
     } catch (error) {
-      console.log("ERROR:", error);
-      console.log("Status:", error.response?.status);
-      console.log("Data:", error.response?.data);
-
-      alert("Failed to load citizens");
+      console.error(error);
     }
   };
 
+  const filteredCitizens = citizens.filter((citizen) =>
+    (
+      citizen.fullName +
+      citizen.email +
+      citizen.phone +
+      citizen.address
+    )
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
+  const columns = [
+    {
+      field: "id",
+      headerName: "ID",
+      width: 90,
+    },
+    {
+      field: "fullName",
+      headerName: "Citizen Name",
+      flex: 1,
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      flex: 1.3,
+    },
+    {
+      field: "phone",
+      headerName: "Phone",
+      width: 150,
+    },
+    {
+      field: "aadhaarNumber",
+      headerName: "Aadhaar",
+      width: 180,
+    },
+    {
+      field: "address",
+      headerName: "Address",
+      flex: 1,
+      renderCell: (params) => (
+        <Chip
+          label={params.value || "N/A"}
+          size="small"
+          color="primary"
+          variant="outlined"
+        />
+      ),
+    },
+  ];
+
   return (
     <>
-      <Navbar />
+      <Sidebar />
 
-      <div
-        style={{
-          padding: "40px",
-          background: "#f4f7fc",
+      <Box
+        sx={{
+          ml: "260px",
+          p: 4,
+          background: "#F4F6F9",
           minHeight: "100vh",
         }}
       >
-        <h1
-          style={{
-            color: "#1565C0",
-            marginBottom: "25px",
-          }}
-        >
-          Registered Citizens
-        </h1>
+        <Header />
 
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            background: "white",
-            borderRadius: "10px",
-            overflow: "hidden",
-            boxShadow: "0 5px 20px rgba(0,0,0,.1)",
+        <Paper
+          elevation={3}
+          sx={{
+            mt: 3,
+            p: 3,
+            borderRadius: 3,
           }}
         >
-          <thead
-            style={{
-              background: "#1565C0",
-              color: "white",
+          <Typography variant="h4" fontWeight="bold" mb={3}>
+            👤 Registered Citizens
+          </Typography>
+
+          <TextField
+            fullWidth
+            placeholder="Search Citizen..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ mb: 3 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
             }}
-          >
-            <tr>
-              <th style={th}>ID</th>
-              <th style={th}>Full Name</th>
-              <th style={th}>Email</th>
-              <th style={th}>Phone</th>
-              <th style={th}>Aadhaar</th>
-              <th style={th}>Address</th>
-            </tr>
-          </thead>
+          />
 
-          <tbody>
-            {citizens.length > 0 ? (
-              citizens.map((citizen) => (
-                <tr key={citizen.id}>
-                  <td style={td}>{citizen.id}</td>
-                  <td style={td}>{citizen.fullName}</td>
-                  <td style={td}>{citizen.email}</td>
-                  <td style={td}>{citizen.phone}</td>
-                  <td style={td}>{citizen.aadhaarNumber}</td>
-                  <td style={td}>{citizen.address}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td style={td} colSpan="6">
-                  No citizens found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          <DataGrid
+            rows={filteredCitizens}
+            columns={columns}
+            autoHeight
+            pageSizeOptions={[5, 10, 20]}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
+              },
+            }}
+            disableRowSelectionOnClick
+          />
+        </Paper>
+      </Box>
     </>
   );
 }
-
-const th = {
-  padding: "15px",
-  textAlign: "center",
-};
-
-const td = {
-  padding: "12px",
-  textAlign: "center",
-  borderBottom: "1px solid #ddd",
-};
 
 export default ViewCitizens;

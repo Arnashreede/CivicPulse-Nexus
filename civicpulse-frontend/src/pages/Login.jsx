@@ -4,23 +4,39 @@ import Navbar from "../components/Navbar";
 import { login } from "../services/authService";
 
 function Login() {
-  const [username, setUsername] = useState("");
+
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    try {
-      const data = await login(username, password);
 
+    try {
+
+      const data = await login(email, password);
+console.log("LOGIN RESPONSE:", data);
       localStorage.setItem("token", data.token);
+localStorage.setItem("role", data.role);
+localStorage.setItem("email", data.email);
+localStorage.setItem("fullName", data.fullName);
+localStorage.setItem("citizenId", data.citizenId);
 
       alert("Login Successful");
 
-      navigate("/dashboard");
+      if (data.role === "ADMIN" || data.role === "SUPER_ADMIN") {
+        navigate("/dashboard");
+      } else if (data.role === "OFFICER") {
+        navigate("/officer-dashboard");
+      } else if (data.role === "CITIZEN") {
+        navigate("/citizen-dashboard");
+      } else {
+        navigate("/");
+      }
+
     } catch (error) {
       console.error(error);
-      alert("Invalid Username or Password");
+      alert("Invalid Email or Password");
     }
   };
 
@@ -57,10 +73,10 @@ function Login() {
           </h1>
 
           <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             style={inputStyle}
           />
 

@@ -5,16 +5,17 @@ import com.civicpulse.certificateservice.dto.CertificateResponse;
 import com.civicpulse.certificateservice.entity.Certificate;
 import com.civicpulse.certificateservice.repository.CertificateRepository;
 import com.civicpulse.certificateservice.service.CertificateService;
+import com.civicpulse.certificateservice.util.PdfGenerator;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-
-import com.civicpulse.certificateservice.util.PdfGenerator;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 
 @Service
 public class CertificateServiceImpl implements CertificateService {
@@ -27,6 +28,19 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public CertificateResponse generateCertificate(CertificateRequest request) {
+
+        Optional<Certificate> existing =
+                repository.findByCitizenIdAndServiceNameAndValidTillAfter(
+                        request.getCitizenId(),
+                        request.getServiceName(),
+                        LocalDate.now());
+
+        if (existing.isPresent()) {
+            throw new IllegalStateException(
+                    "You already have a valid "
+                            + request.getServiceName()
+                            + ". Duplicate requests are not allowed.");
+        }
 
         Certificate certificate = Certificate.builder()
                 .certificateNumber("CPN-" + System.currentTimeMillis())
@@ -48,93 +62,102 @@ public class CertificateServiceImpl implements CertificateService {
 
         Certificate saved = repository.save(certificate);
 
-        return CertificateResponse.builder()
-                .certificateId(saved.getCertificateId())
-                .certificateNumber(saved.getCertificateNumber())
-                .applicationId(saved.getApplicationId())
-                .citizenId(saved.getCitizenId())
-                .citizenName(saved.getCitizenName())
-                .serviceName(saved.getServiceName())
-                .departmentName(saved.getDepartmentName())
-                .officerName(saved.getOfficerName())
-                .officerId(saved.getOfficerId())
-                .issueDate(saved.getIssueDate())
-                .validTill(saved.getValidTill())
-                .verificationCode(saved.getVerificationCode())
-                .qrCodeUrl(saved.getQrCodeUrl())
-                .build();
+        return mapToResponse(saved);
     }
 
-   @Override
-public CertificateResponse getCertificateById(Long id) {
+    @Override
+    public CertificateResponse getCertificateById(Long id) {
 
-    Certificate certificate = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Certificate not found"));
+        Certificate certificate = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Certificate not found"));
 
-    return mapToResponse(certificate);
-}
-@Override
-public ResponseEntity<byte[]> downloadCertificate(Long id) throws Exception {
+        return mapToResponse(certificate);
+    }
 
-    Certificate certificate = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Certificate not found"));
+    @Override
+    public CertificateResponse getCertificateByApplicationId(Long applicationId) {
+
+        Certificate certificate = repository.findByApplicationId(applicationId)
+                .orElseThrow(() -> new RuntimeException("Certificate not found"));
+
+        return mapToResponse(certificate);
+    }
+
+    @Override
+    public List<CertificateResponse> getAllCertificates() {
+
+        return repository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    @Override
+    public CertificateResponse getCertificateByCertificateNumber(String certificateNumber) {
+
+        Certificate certificate = repository
+                .findByCertificateNumber(certificateNumber)
+                .orElseThrow(() -> new RuntimeException("Certificate not found"));
+
+        return mapToResponse(certificate);
+    }
+
+    // ============================
+    // FIXED DOWNLOAD METHOD
+    // ============================
+  @Override
+public ResponseEntity<byte[]> downloadCertificate(Long applicationId) throws Exception {
+
+    System.out.println("Download called with applicationId = " + applicationId);
+
+    Certificate certificate = repository.findByApplicationId(applicationId)
+            .orElseThrow(() -> new RuntimeException(
+                    "Certificate not found for applicationId = " + applicationId));
+
+    System.out.println("Found certificate: " + certificate.getCertificateId());
 
     byte[] pdf = PdfGenerator.generateCertificate(certificate);
 
     return ResponseEntity.ok()
             .header(HttpHeaders.CONTENT_DISPOSITION,
-                    "inline; filename=certificate.pdf")
+                    "attachment; filename=certificate.pdf")
             .contentType(MediaType.APPLICATION_PDF)
             .body(pdf);
 }
-   @Override
-public CertificateResponse getCertificateByApplicationId(Long applicationId) {
+@Override
+public List<CertificateResponse> getCertificatesByCitizenId(Long citizenId) {
 
-    Certificate certificate = repository.findByApplicationId(applicationId)
-            .orElseThrow(() -> new RuntimeException("Certificate not found"));
-
-    return mapToResponse(certificate);
-}
-
-    @Override
-public List<CertificateResponse> getAllCertificates() {
-
-    return repository.findAll()
+    return repository.findByCitizenId(citizenId)
             .stream()
             .map(this::mapToResponse)
             .toList();
-}
-@Override
-public CertificateResponse getCertificateByCertificateNumber(
-        String certificateNumber) {
-
-    Certificate certificate = repository
-            .findByCertificateNumber(certificateNumber)
-            .orElseThrow(() ->
-                    new RuntimeException("Certificate not found"));
-
-    return mapToResponse(certificate);
 }
     @Override
     public void deleteCertificate(Long id) {
         repository.deleteById(id);
     }
+
+    @Override
+    public long getCertificateCount() {
+        return repository.count();
+    }
+
     private CertificateResponse mapToResponse(Certificate certificate) {
 
-    return CertificateResponse.builder()
-            .certificateId(certificate.getCertificateId())
-            .certificateNumber(certificate.getCertificateNumber())
-            .applicationId(certificate.getApplicationId())
-            .citizenId(certificate.getCitizenId())
-            .citizenName(certificate.getCitizenName())
-            .serviceName(certificate.getServiceName())
-            .departmentName(certificate.getDepartmentName())
-            .officerName(certificate.getOfficerName())
-            .officerId(certificate.getOfficerId())
-            .issueDate(certificate.getIssueDate())
-            .validTill(certificate.getValidTill())
-            .verificationCode(certificate.getVerificationCode())
-            .qrCodeUrl(certificate.getQrCodeUrl())
-            .build();
-}
+        return CertificateResponse.builder()
+                .certificateId(certificate.getCertificateId())
+                .certificateNumber(certificate.getCertificateNumber())
+                .applicationId(certificate.getApplicationId())
+                .citizenId(certificate.getCitizenId())
+                .citizenName(certificate.getCitizenName())
+                .serviceName(certificate.getServiceName())
+                .departmentName(certificate.getDepartmentName())
+                .officerName(certificate.getOfficerName())
+                .officerId(certificate.getOfficerId())
+                .issueDate(certificate.getIssueDate())
+                .validTill(certificate.getValidTill())
+                .verificationCode(certificate.getVerificationCode())
+                .qrCodeUrl(certificate.getQrCodeUrl())
+                .build();
+    }
 }

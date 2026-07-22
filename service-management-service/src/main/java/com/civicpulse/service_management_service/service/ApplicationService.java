@@ -4,6 +4,8 @@ import com.civicpulse.service_management_service.entity.Application;
 import com.civicpulse.service_management_service.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.civicpulse.service_management_service.dto.CertificateRequest;
+import com.civicpulse.service_management_service.dto.CertificateResponse;
 
 import java.util.List;
 import java.time.LocalDate;
@@ -14,10 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.*;
 import org.springframework.core.io.Resource;
-
+import java.util.Optional;
+import org.springframework.web.client.RestTemplate;
 @Service
 public class ApplicationService {
-
+@Autowired
+private RestTemplate restTemplate;
     @Autowired
     private ApplicationRepository applicationRepository;
     @Value("${file.upload-dir}")
@@ -26,10 +30,30 @@ private String uploadDir;
     // Submit a new application
     public Application submitApplication(Application application) {
 
-        application.setStatus("SUBMITTED");
+    List<String> activeStatuses = List.of(
+            "SUBMITTED",
+            "VERIFIED",
+            "APPROVED"
+    );
 
-        return applicationRepository.save(application);
+    Optional<Application> existing =
+            applicationRepository.findByCitizenIdAndApplicationTypeAndStatusIn(
+                    application.getCitizenId(),
+                    application.getApplicationType(),
+                    activeStatuses
+            );
+
+    if (existing.isPresent()) {
+        throw new RuntimeException(
+                "You have already applied for a "
+                        + application.getApplicationType()
+                        + ". Please wait until it is approved or rejected.");
     }
+
+    application.setStatus("SUBMITTED");
+
+    return applicationRepository.save(application);
+}
 
     // Get all applications
     public List<Application> getAllApplications() {
@@ -58,7 +82,10 @@ public List<Application> getApplicationsByType(String applicationType) {
 }
     
    // Approve application
+// Approve application
 public Application approveApplication(Long id) {
+
+    System.out.println("Approve application called for ID: " + id);
 
     Application application = applicationRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Application not found"));
@@ -67,17 +94,55 @@ public Application approveApplication(Long id) {
         throw new RuntimeException("Application must be verified before approval.");
     }
 
-    application.setStatus("APPROVED");
+    // Create request for certificate-service
+    CertificateRequest request = new CertificateRequest();
 
-    application.setCertificateNumber(
-            "CERT-" + System.currentTimeMillis()
-    );
+    request.setApplicationId(application.getId());
+    request.setCitizenId(application.getCitizenId());
+    request.setCitizenName(application.getApplicantName());
+    request.setServiceName(application.getApplicationType());
+    request.setDepartmentName("Municipal Department");
+    request.setOfficerName("Municipal Officer");
+    request.setOfficerId("OFFICER-001");
+    request.setApplicationDate(LocalDate.now());
+    request.setApprovalDate(LocalDate.now());
+    request.setValidTill(LocalDate.now().plusYears(1));
 
-    application.setApprovedBy("Municipal Officer");
-    application.setApprovedDate(LocalDate.now());
-    application.setRemarks("Application Approved");
+    try {
 
-    return applicationRepository.save(application);
+        System.out.println("Calling certificate-service...");
+
+        CertificateResponse response =
+                restTemplate.postForObject(
+                        "http://localhost:8089/certificates",
+                        request,
+                        CertificateResponse.class
+                );
+
+        if (response == null) {
+            throw new RuntimeException("Certificate service returned null response.");
+        }
+
+        // Update application only after certificate is created
+        application.setStatus("APPROVED");
+        application.setApprovedBy("Municipal Officer");
+        application.setApprovedDate(LocalDate.now());
+        application.setRemarks("Application Approved");
+        application.setCertificateNumber(response.getCertificateNumber());
+
+        applicationRepository.save(application);
+
+        System.out.println("Certificate created successfully.");
+
+    } catch (Exception e) {
+
+        System.out.println("Certificate generation failed: " + e.getMessage());
+        e.printStackTrace();
+
+        throw new RuntimeException("Certificate generation failed", e);
+    }
+
+    return application;
 }
 // Reject application
 public Application rejectApplication(Long id, String reason) {

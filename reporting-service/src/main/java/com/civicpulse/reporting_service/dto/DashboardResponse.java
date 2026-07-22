@@ -11,4 +11,5 @@ public class DashboardResponse {
     private long totalGrievances;
     private long openGrievances;
     private long highPriorityGrievances;
+    private long totalCertificates;
 }

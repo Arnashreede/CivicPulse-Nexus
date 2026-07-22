@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final UserService userService;
@@ -23,26 +24,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-public LoginResponse login(@RequestBody LoginRequest request) {
-
-    String token = userService.login(request);
-
-    User user = userService.findByUsername(request.getUsername());
-
-    String officerName = "";
-
-    if (user.getUsername().equalsIgnoreCase("rahul")) {
-        officerName = "Rahul Sharma";
-    } else if (user.getUsername().equalsIgnoreCase("ravi")) {
-        officerName = "Ravi Gupta";
+    public LoginResponse login(@RequestBody LoginRequest request) {
+        return userService.login(request);
     }
-
-    return new LoginResponse(
-            token,
-            user.getRole(),
-            user.getId(),
-            user.getUsername(),
-            officerName
-    );
-}
 }

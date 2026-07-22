@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@mui/material";
+
 function Sidebar() {
 
   const navigate = useNavigate();
@@ -82,9 +82,10 @@ function Sidebar() {
           <Link style={link} to="/citizen/application">
             📑 Apply Certificate / Permit
           </Link>
-<Link style={link} to="/my-applications">
-    📄 My Applications
-</Link>
+
+          <Link style={link} to="/my-applications">
+            📄 My Applications
+          </Link>
 
           <Link style={link} to="/notifications">
             🔔 Notifications
@@ -95,22 +96,20 @@ function Sidebar() {
       <button style={logoutBtn} onClick={logout}>
         🚪 Logout
       </button>
-      <Button onClick={() => navigate("/certificates")}>
-    Certificates
-</Button>
 
     </div>
   );
 }
 
 const sidebar = {
-  width: "250px",
+  width: "260px",
+  boxSizing: "border-box",
   height: "100vh",
   position: "fixed",
   left: 0,
   top: 0,
   background: "#0D47A1",
-  padding: "25px",
+  padding: "20px",
   display: "flex",
   flexDirection: "column",
 };

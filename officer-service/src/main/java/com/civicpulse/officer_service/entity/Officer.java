@@ -23,7 +23,9 @@ private String username;
     private String department;
 
     private String designation;
+private String password;
 
+private boolean active = true;
     public Officer() {
     }
 
@@ -92,5 +94,19 @@ public void setUsername(String username) {
     public void setDesignation(String designation) {
         this.designation=designation;
     }
+public String getPassword() {
+    return password;
+}
 
+public void setPassword(String password) {
+    this.password = password;
+}
+
+public boolean isActive() {
+    return active;
+}
+
+public void setActive(boolean active) {
+    this.active = active;
+}
 }

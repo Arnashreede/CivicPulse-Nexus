@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Box, Typography } from "@mui/material";
 
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -10,11 +11,12 @@ import { getAllGrievances } from "../services/grievanceService";
 function Dashboard() {
 
   const [counts, setCounts] = useState({
-    totalCitizens: 0,
-    totalOfficers: 0,
-    totalGrievances: 0,
-    pending: 0,
-  });
+  totalCitizens: 0,
+  totalOfficers: 0,
+  totalGrievances: 0,
+  pending: 0,
+  totalCertificates: 0,
+});
 
   const [grievances, setGrievances] = useState([]);
 
@@ -45,17 +47,30 @@ function Dashboard() {
     <>
       <Sidebar />
 
-      <div style={{ marginLeft: "270px", padding: "20px" }}>
+      <Box
+        sx={{
+          ml: "260px",
+          p: 4,
+          background: "#F4F6F9",
+          minHeight: "100vh",
+        }}
+      >
         <Header />
-      </div>
 
-      <div style={container}>
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          mt={3}
+        >
+          🏛 Government Dashboard
+        </Typography>
 
-        <h1>🏛 Government Dashboard</h1>
-
-        <p style={{ color: "#666", marginBottom: "30px" }}>
+        <Typography
+          color="text.secondary"
+          mb={4}
+        >
           Welcome to CivicPulse Nexus Administration Portal
-        </p>
+        </Typography>
 
         <div style={cards}>
 
@@ -82,28 +97,28 @@ function Dashboard() {
             <h1>{counts.pending}</h1>
             <p>Pending Cases</p>
           </div>
-
+<div style={card}>
+  <h2>📄 Certificates</h2>
+  <h1>{counts.totalCertificates}</h1>
+  <p>Issued Certificates</p>
+</div>
         </div>
 
-        
-
-        <h2 style={{ marginTop: "60px" }}>
+        <Typography
+          variant="h5"
+          fontWeight="bold"
+          mt={6}
+          mb={3}
+        >
           📊 Analytics
-        </h2>
+        </Typography>
 
         <DashboardCharts grievances={grievances} />
 
-      </div>
+      </Box>
     </>
   );
 }
-
-const container = {
-  marginLeft: "270px",
-  padding: "40px",
-  background: "#F4F6F9",
-  minHeight: "100vh",
-};
 
 const cards = {
   display: "grid",
@@ -117,22 +132,6 @@ const card = {
   padding: "25px",
   textAlign: "center",
   boxShadow: "0 5px 15px rgba(0,0,0,.1)",
-};
-
-const actions = {
-  display: "flex",
-  gap: "20px",
-  flexWrap: "wrap",
-  marginTop: "20px",
-};
-
-const button = {
-  background: "#1565C0",
-  color: "white",
-  border: "none",
-  padding: "14px 25px",
-  borderRadius: "8px",
-  cursor: "pointer",
 };
 
 export default Dashboard;

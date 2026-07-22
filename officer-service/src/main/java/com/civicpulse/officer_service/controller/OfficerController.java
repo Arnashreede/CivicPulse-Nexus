@@ -45,4 +45,30 @@ public Officer getOfficerByUsername(@PathVariable String username) {
 public long getTotalOfficers() {
     return officerService.getTotalOfficers();
 }
+@GetMapping("/department/{department}")
+public List<Officer> getOfficersByDepartment(
+        @PathVariable String department) {
+
+    return officerService.getOfficersByDepartment(department);
+}
+
+@GetMapping("/department/{department}/{designation}")
+public List<Officer> getOfficersByDepartmentAndDesignation(
+        @PathVariable String department,
+        @PathVariable String designation) {
+
+    return officerService.getOfficersByDepartmentAndDesignation(
+            department,
+            designation
+    );
+}
+
+@PutMapping("/{id}")
+public Officer updateOfficer(
+        @PathVariable Long id,
+        @RequestBody Officer officer) {
+
+    return officerService.updateOfficer(id, officer);
+}
+
 }

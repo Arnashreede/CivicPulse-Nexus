@@ -3,7 +3,9 @@ package com.civicpulse.reporting_service.service;
 import com.civicpulse.reporting_service.dto.DashboardResponse;
 import com.civicpulse.reporting_service.entity.CitizenReport;
 import com.civicpulse.reporting_service.repository.CitizenReportRepository;
+
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -11,9 +13,12 @@ import java.util.List;
 public class ReportService {
 
     private final CitizenReportRepository repository;
+    private final RestTemplate restTemplate;
 
-    public ReportService(CitizenReportRepository repository) {
+    public ReportService(CitizenReportRepository repository,
+                         RestTemplate restTemplate) {
         this.repository = repository;
+        this.restTemplate = restTemplate;
     }
 
     public List<CitizenReport> getAllCitizens() {
@@ -28,16 +33,30 @@ public class ReportService {
 
         long totalCitizens = repository.count();
 
-        // Replace these dummy values later
         long totalGrievances = 0;
         long openGrievances = 0;
         long highPriorityGrievances = 0;
+
+        long totalCertificates = 0;
+
+        try {
+            Long count = restTemplate.getForObject(
+                    "http://certificate-service/certificates/count",
+                    Long.class);
+
+            if (count != null) {
+                totalCertificates = count;
+            }
+        } catch (Exception e) {
+            totalCertificates = 0;
+        }
 
         return new DashboardResponse(
                 totalCitizens,
                 totalGrievances,
                 openGrievances,
-                highPriorityGrievances
+                highPriorityGrievances,
+                totalCertificates
         );
     }
 }

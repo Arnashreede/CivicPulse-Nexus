@@ -24,6 +24,12 @@ export const getAllApplications = async () => {
     const response = await applicationApi.get("/applications");
     return response.data;
 };
+export const viewDocument = (id) => {
+    window.open(
+        `http://localhost:8088/applications/${id}/document`,
+        "_blank"
+    );
+};
 
 export const approveApplication = async (id) => {
     const response = await applicationApi.put(

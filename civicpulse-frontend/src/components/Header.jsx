@@ -37,12 +37,16 @@ function Header() {
 
 const header = {
   background: "white",
+  position: "sticky",
+  top: 0,
+  zIndex: 100,
   padding: "20px",
   borderRadius: "15px",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  boxShadow: "0 5px 15px rgba(0,0,0,.1)",
+  boxShadow: "0 5px 15px rgba(0,0,0,.08)",
+  marginBottom: "25px",
 };
 
 const profile = {

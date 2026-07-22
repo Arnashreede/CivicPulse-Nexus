@@ -22,3 +22,9 @@ export const getOfficerByUsername = async (username) => {
   const response = await officerApi.get(`/officers/username/${username}`);
   return response.data;
 };
+export const getOfficersByDepartment = async (department) => {
+    const response = await officerApi.get(
+        `/officers/department/${department}`
+    );
+    return response.data;
+};

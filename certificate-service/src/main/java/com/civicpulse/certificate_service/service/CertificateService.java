@@ -18,4 +18,5 @@ ResponseEntity<byte[]> downloadCertificate(Long id) throws Exception;
     void deleteCertificate(Long id);
     CertificateResponse getCertificateByCertificateNumber(
         String certificateNumber);
+        long getCertificateCount();
 }

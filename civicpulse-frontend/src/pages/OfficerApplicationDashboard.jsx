@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import {
     getAllApplications,
     approveApplication,
-    rejectApplication
+    rejectApplication,
+    verifyApplication,
+    viewDocument
 } from "../services/applicationService";
-import { verifyApplication } from "../services/applicationService";
-import { useNavigate } from "react-router-dom";
+
+import { Button } from "@mui/material";
 
 function OfficerApplicationDashboard() {
 
@@ -24,45 +26,43 @@ function OfficerApplicationDashboard() {
         }
     };
 
-    const handleApprove = async (id) => {
+    const handleVerify = async (id) => {
         try {
-            await approveApplication(id);
-            alert("Application Approved");
+            await verifyApplication(id);
+            alert("Application Verified Successfully");
             loadApplications();
         } catch (error) {
             console.error(error);
+            alert("Verification Failed");
+        }
+    };
+
+    const handleApprove = async (id) => {
+        try {
+            await approveApplication(id);
+            alert("Application Approved Successfully");
+            loadApplications();
+        } catch (error) {
+            console.error(error);
+            alert(error.response?.data || "Approval Failed");
         }
     };
 
     const handleReject = async (id) => {
 
-        const remarks = prompt("Enter rejection remarks");
+        const reason = prompt("Enter Rejection Reason");
 
-        if (!remarks) return;
+        if (!reason) return;
 
         try {
-            await rejectApplication(id, remarks);
+            await rejectApplication(id, reason);
             alert("Application Rejected");
             loadApplications();
         } catch (error) {
             console.error(error);
+            alert("Rejection Failed");
         }
     };
-    const handleVerify = async (id) => {
-
-    try {
-
-        await verifyApplication(id);
-
-        alert("Application Verified");
-
-        loadApplications();
-
-    } catch (error) {
-
-        console.error(error);
-    }
-};
 
     return (
         <div style={{ padding: "30px" }}>
@@ -74,17 +74,18 @@ function OfficerApplicationDashboard() {
                 cellPadding="10"
                 style={{
                     width: "100%",
-                    borderCollapse: "collapse"
+                    borderCollapse: "collapse",
+                    textAlign: "center"
                 }}
             >
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Applicant</th>
-                        <th>Type</th>
+                        <th>Application Type</th>
                         <th>Status</th>
                         <th>Certificate No.</th>
-                        <th>Action</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
 
@@ -98,33 +99,60 @@ function OfficerApplicationDashboard() {
                             <td>{app.applicantName}</td>
                             <td>{app.applicationType}</td>
                             <td>{app.status}</td>
-                            <td>{app.certificateNumber}</td>
+                            <td>
+                                {app.certificateNumber || "-"}
+                            </td>
 
-                           <td>
+                            <td>
 
-    <button
-        onClick={() => handleVerify(app.id)}
-    >
-        Verify
-    </button>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => viewDocument(app.id)}
+                                >
+                                    View Document
+                                </Button>
 
-    {" "}
+                                {" "}
 
-    <button
-        onClick={() => handleApprove(app.id)}
-    >
-        Approve
-    </button>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    size="small"
+                                    onClick={() => handleVerify(app.id)}
+                                    disabled={app.status !== "SUBMITTED"}
+                                >
+                                    Verify
+                                </Button>
 
-    {" "}
+                                {" "}
 
-    <button
-        onClick={() => handleReject(app.id)}
-    >
-        Reject
-    </button>
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    size="small"
+                                    onClick={() => handleApprove(app.id)}
+                                    disabled={app.status !== "VERIFIED"}
+                                >
+                                    Approve
+                                </Button>
 
-</td>
+                                {" "}
+
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    size="small"
+                                    onClick={() => handleReject(app.id)}
+                                    disabled={
+                                        app.status === "APPROVED" ||
+                                        app.status === "REJECTED"
+                                    }
+                                >
+                                    Reject
+                                </Button>
+
+                            </td>
 
                         </tr>
 

@@ -43,6 +43,10 @@ public class Citizen {
             regexp = "^\\d{12}$",
             message = "Aadhaar Number must be exactly 12 digits"
     )
+    
     @Column(unique = true)
     private String aadhaarNumber;
+    @NotBlank(message = "Password is required")
+@Size(min = 6, message = "Password must be at least 6 characters")
+private String password;
 }

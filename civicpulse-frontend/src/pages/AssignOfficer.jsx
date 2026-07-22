@@ -1,195 +1,308 @@
 import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  Chip,
+  Button,
+  Card,
+  CardContent,
+  Grid,
+  InputAdornment,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import { DataGrid } from "@mui/x-data-grid";
+
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
+import AssignOfficerDialog from "../components/AssignOfficerDialog";
+
 import { getAllGrievances } from "../services/grievanceService";
-import { getAllOfficers } from "../services/officerService";
-import { assignOfficer } from "../services/assignService";
 
 function AssignOfficer() {
+  const [grievances, setGrievances] = useState([]);
+  const [filtered, setFiltered] = useState([]);
 
-    const [grievances, setGrievances] = useState([]);
-    const [officers, setOfficers] = useState([]);
+  const [selectedGrievance, setSelectedGrievance] = useState(null);
+  const [open, setOpen] = useState(false);
 
-    useEffect(() => {
-        loadData();
-    }, []);
+  useEffect(() => {
+    loadGrievances();
+  }, []);
 
-    const loadData = async () => {
-        const grievanceData = await getAllGrievances();
-        const officerData = await getAllOfficers();
+  const loadGrievances = async () => {
+    try {
+      const data = await getAllGrievances();
 
-        setGrievances(grievanceData);
-        setOfficers(officerData);
-    };
+      setGrievances(data);
+      setFiltered(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    const handleChange = (index, field, value) => {
+  const search = (value) => {
+    const text = value.toLowerCase();
 
-        const updated = [...grievances];
-
-        updated[index][field] = value;
-
-        setGrievances(updated);
-    };
-
-    const handleAssign = async (grievance) => {
-
-        try {
-
-            await assignOfficer(grievance.id, {
-                assignedOfficer: grievance.assignedOfficer,
-                priority: grievance.priority,
-                status: grievance.status,
-            });
-
-            alert("Officer Assigned Successfully");
-
-        } catch (error) {
-
-            console.error(error);
-
-            alert("Assignment Failed");
-        }
-    };
-
-    return (
-        <>
-            <Navbar />
-
-            <div style={{ padding: "30px" }}>
-
-                <h2>Assign Officer</h2>
-
-                <table border="1" cellPadding="10">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>ID</th>
-                            <th>Title</th>
-                            <th>Category</th>
-                            <th>Officer</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Action</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        {grievances.map((grievance, index) => (
-
-                            <tr key={grievance.id}>
-
-                                <td>{grievance.id}</td>
-
-                                <td>{grievance.title}</td>
-
-                                <td>{grievance.category}</td>
-
-                                <td>
-
-                                    <select
-                                        value={grievance.assignedOfficer}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                index,
-                                                "assignedOfficer",
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-
-                                        <option value="">
-                                            Select Officer
-                                        </option>
-
-                                        {officers.map((officer) => (
-
-                                            <option
-                                                key={officer.id}
-                                                value={officer.fullName}
-                                            >
-                                                {officer.fullName}
-                                            </option>
-
-                                        ))}
-
-                                    </select>
-
-                                </td>
-
-                                <td>
-
-                                    <select
-                                        value={grievance.priority}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                index,
-                                                "priority",
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-
-                                        <option>LOW</option>
-
-                                        <option>MEDIUM</option>
-
-                                        <option>HIGH</option>
-
-                                    </select>
-
-                                </td>
-
-                                <td>
-
-                                    <select
-                                        value={grievance.status}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                index,
-                                                "status",
-                                                e.target.value
-                                            )
-                                        }
-                                    >
-
-                                        <option>OPEN</option>
-
-                                        <option>IN_PROGRESS</option>
-
-                                        <option>RESOLVED</option>
-
-                                    </select>
-
-                                </td>
-
-                                <td>
-
-                                    <button
-                                        onClick={() =>
-                                            handleAssign(grievance)
-                                        }
-                                    >
-                                        Assign
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        ))}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </>
+    setFiltered(
+      grievances.filter(
+        (g) =>
+          g.title.toLowerCase().includes(text) ||
+          g.department.toLowerCase().includes(text) ||
+          g.category.toLowerCase().includes(text) ||
+          g.status.toLowerCase().includes(text)
+      )
     );
+  };
+
+  const columns = [
+    {
+      field: "citizenId",
+      headerName: "Citizen",
+      width: 110,
+    },
+    {
+      field: "title",
+      headerName: "Complaint",
+      flex: 1,
+    },
+    {
+      field: "department",
+      headerName: "Department",
+      width: 160,
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color="primary"
+          variant="outlined"
+        />
+      ),
+    },
+    {
+      field: "category",
+      headerName: "Complaint Type",
+      width: 220,
+    },
+    {
+      field: "priority",
+      headerName: "Priority",
+      width: 130,
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color={
+            params.value === "HIGH"
+              ? "error"
+              : params.value === "MEDIUM"
+              ? "warning"
+              : "success"
+          }
+        />
+      ),
+    },
+    {
+      field: "status",
+      headerName: "Status",
+      width: 150,
+      renderCell: (params) => (
+        <Chip
+          label={params.value}
+          color={
+            params.value === "RESOLVED"
+              ? "success"
+              : params.value === "IN_PROGRESS"
+              ? "info"
+              : "warning"
+          }
+        />
+      ),
+    },
+    {
+      field: "assignedOfficer",
+      headerName: "Assigned Officer",
+      width: 180,
+      renderCell: (params) =>
+        params.value ? (
+          params.value
+        ) : (
+          <Chip
+            label="Not Assigned"
+            color="warning"
+            size="small"
+          />
+        ),
+    },
+    {
+      field: "action",
+      headerName: "Action",
+      width: 170,
+      sortable: false,
+      renderCell: (params) => (
+        <Button
+          variant="contained"
+          startIcon={<AssignmentIndIcon />}
+          disabled={params.row.status === "RESOLVED"}
+          onClick={() => {
+            setSelectedGrievance(params.row);
+            setOpen(true);
+          }}
+        >
+          Assign
+        </Button>
+      ),
+    },
+  ];
+
+  const total = grievances.length;
+  const openCount = grievances.filter(
+    (g) => g.status === "OPEN"
+  ).length;
+
+  const progressCount = grievances.filter(
+    (g) => g.status === "IN_PROGRESS"
+  ).length;
+
+  const resolvedCount = grievances.filter(
+    (g) => g.status === "RESOLVED"
+  ).length;
+
+  return (
+    <>
+      <Sidebar />
+
+      <Box
+        sx={{
+          ml: "270px",
+          background: "#F4F6F9",
+          minHeight: "100vh",
+          p: 4,
+        }}
+      >
+        <Header />
+
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          mt={2}
+        >
+          Assign Officers
+        </Typography>
+
+        <Typography color="text.secondary" mb={3}>
+          Assign complaints to department officers
+        </Typography>
+
+        <Grid container spacing={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">
+                  Total Complaints
+                </Typography>
+                <Typography variant="h3">
+                  {total}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">
+                  Open
+                </Typography>
+                <Typography variant="h3" color="warning.main">
+                  {openCount}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">
+                  In Progress
+                </Typography>
+                <Typography variant="h3" color="info.main">
+                  {progressCount}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6">
+                  Resolved
+                </Typography>
+                <Typography variant="h3" color="success.main">
+                  {resolvedCount}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        <Paper
+          sx={{
+            mt: 4,
+            p: 2,
+            borderRadius: 3,
+          }}
+        >
+          <TextField
+            fullWidth
+            placeholder="Search complaint..."
+            onChange={(e) => search(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Paper>
+
+        <Paper
+          sx={{
+            mt: 3,
+            p: 2,
+            borderRadius: 3,
+          }}
+        >
+          <DataGrid
+            rows={filtered}
+            columns={columns}
+            autoHeight
+            pageSizeOptions={[5, 10, 20]}
+            disableRowSelectionOnClick
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                },
+              },
+            }}
+          />
+        </Paper>
+      </Box>
+
+      <AssignOfficerDialog
+        open={open}
+        grievance={selectedGrievance}
+        onClose={() => {
+          setOpen(false);
+          loadGrievances();
+        }}
+      />
+    </>
+  );
 }
 
 export default AssignOfficer;

@@ -56,13 +56,9 @@ function App() {
 
         {/* Citizen */}
         <Route
-          path="/citizen/register"
-          element={
-            <ProtectedRoute>
-              <CitizenRegistration />
-            </ProtectedRoute>
-          }
-        />
+  path="/citizen/register"
+  element={<CitizenRegistration />}
+/>
 <Route path="/upload-document" element={<UploadDocument />} />
         <Route
           path="/citizens"

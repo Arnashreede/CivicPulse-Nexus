@@ -45,5 +45,33 @@ public class OfficerService {
     public long getTotalOfficers() {
     return repository.count();
 }
+public List<Officer> getOfficersByDepartment(String department) {
+    return repository.findByDepartment(department);
+}
+
+public List<Officer> getOfficersByDepartmentAndDesignation(
+        String department,
+        String designation) {
+
+    return repository.findByDepartmentAndDesignation(
+            department,
+            designation
+    );
+}
+
+public Officer updateOfficer(Long id, Officer updatedOfficer) {
+
+    Officer officer = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Officer not found"));
+
+    officer.setFullName(updatedOfficer.getFullName());
+    officer.setUsername(updatedOfficer.getUsername());
+    officer.setEmail(updatedOfficer.getEmail());
+    officer.setPhone(updatedOfficer.getPhone());
+    officer.setDepartment(updatedOfficer.getDepartment());
+    officer.setDesignation(updatedOfficer.getDesignation());
+
+    return repository.save(officer);
+}
 
 }

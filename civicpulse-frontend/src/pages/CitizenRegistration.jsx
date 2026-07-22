@@ -1,17 +1,19 @@
 import { useState } from "react";
 import Navbar from "../components/Navbar";
 import { registerCitizen } from "../services/citizenService";
-
+import { useNavigate } from "react-router-dom";
 function CitizenRegistration() {
 
   const [citizen, setCitizen] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
-    aadhaarNumber: "",
-  });
-
+  fullName: "",
+  email: "",
+  phone: "",
+  address: "",
+  aadhaarNumber: "",
+  password: "",
+  confirmPassword: "",
+});
+const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
@@ -57,7 +59,19 @@ function CitizenRegistration() {
     if (!citizen.address.trim()) {
       temp.address = "Address is required";
     }
+// Password
+if (!citizen.password) {
+  temp.password = "Password is required";
+} else if (citizen.password.length < 6) {
+  temp.password = "Password must be at least 6 characters";
+}
 
+// Confirm Password
+if (!citizen.confirmPassword) {
+  temp.confirmPassword = "Confirm Password is required";
+} else if (citizen.password !== citizen.confirmPassword) {
+  temp.confirmPassword = "Passwords do not match";
+}
     setErrors(temp);
 
     return Object.keys(temp).length === 0;
@@ -69,17 +83,26 @@ function CitizenRegistration() {
 
     try {
 
-      await registerCitizen(citizen);
+      const { confirmPassword, ...citizenData } = citizen;
 
-      alert("Citizen Registered Successfully");
+await registerCitizen(citizenData);
 
-      setCitizen({
-        fullName: "",
-        email: "",
-        phone: "",
-        address: "",
-        aadhaarNumber: "",
-      });
+     alert("Registration Successful! Please login with your email and password.");
+
+setCitizen({
+  fullName: "",
+  email: "",
+  phone: "",
+  address: "",
+  aadhaarNumber: "",
+  password: "",
+  confirmPassword: "",
+});
+
+setErrors({});
+
+navigate("/citizen-login");
+     
 
       setErrors({});
 
@@ -170,7 +193,6 @@ function CitizenRegistration() {
         </small>
 
         <p style={errorStyle}>{errors.aadhaarNumber}</p>
-
         {/* Address */}
 
         <textarea
@@ -187,6 +209,39 @@ function CitizenRegistration() {
 
         <p style={errorStyle}>{errors.address}</p>
 
+{/* Password */}
+
+<input
+  type="password"
+  name="password"
+  placeholder="Create Password"
+  value={citizen.password}
+  onChange={handleChange}
+  style={inputStyle}
+/>
+
+<small style={helperStyle}>
+  Minimum 6 characters.
+</small>
+
+<p style={errorStyle}>{errors.password}</p>
+{/* Confirm Password */}
+
+<input
+  type="password"
+  name="confirmPassword"
+  placeholder="Confirm Password"
+  value={citizen.confirmPassword}
+  onChange={handleChange}
+  style={inputStyle}
+/>
+
+<small style={helperStyle}>
+  Re-enter your password.
+</small>
+
+<p style={errorStyle}>{errors.confirmPassword}</p>
+        
         <button
           onClick={handleSubmit}
           style={buttonStyle}

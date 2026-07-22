@@ -1,102 +1,154 @@
 import { useEffect, useState } from "react";
+import {
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Chip,
+  Button,
+  Stack
+} from "@mui/material";
+import DescriptionIcon from "@mui/icons-material/Description";
+import VerifiedIcon from "@mui/icons-material/Verified";
+import DownloadIcon from "@mui/icons-material/Download";
+
 import { getCitizenApplications } from "../services/applicationService";
 import { downloadCertificate } from "../services/certificateService";
 
 function MyApplications() {
+  const [applications, setApplications] = useState([]);
 
-    const [applications, setApplications] = useState([]);
+  const citizenId = localStorage.getItem("citizenId");
 
-    const citizenId = localStorage.getItem("citizenId");
+  useEffect(() => {
+    loadApplications();
+  }, []);
 
-    useEffect(() => {
-        loadApplications();
-    }, []);
+  const loadApplications = async () => {
+    try {
+      const data = await getCitizenApplications(citizenId);
+      setApplications(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    const loadApplications = async () => {
-        try {
-            const data = await getCitizenApplications(citizenId);
-            setApplications(data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "APPROVED":
+        return "success";
+      case "PENDING":
+        return "warning";
+      case "VERIFIED":
+        return "info";
+      case "REJECTED":
+        return "error";
+      default:
+        return "default";
+    }
+  };
 
-    return (
-        <div style={{ padding: "30px" }}>
+  return (
+    <Container sx={{ mt: 4 }}>
 
-            <h2>My Certificate Applications</h2>
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        color="primary"
+        gutterBottom
+      >
+        📄 My Certificate Applications
+      </Typography>
 
-            <table
-                border="1"
-                cellPadding="10"
-                style={{
-                    width: "100%",
-                    borderCollapse: "collapse",
-                    textAlign: "center"
-                }}
+      <Grid container spacing={3}>
+
+        {applications.map((app) => (
+
+          <Grid item xs={12} md={6} lg={4} key={app.id}>
+
+            <Card
+              elevation={4}
+              sx={{
+                borderRadius: 3,
+                transition: "0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 8
+                }
+              }}
             >
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Certificate Type</th>
-                        <th>Status</th>
-                        <th>Certificate Number</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
 
-                <tbody>
+              <CardContent>
 
-                    {applications.map((app) => (
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                >
+                  <Typography variant="h6">
+                    <DescriptionIcon sx={{ mr: 1 }} />
+                    {app.applicationType}
+                  </Typography>
 
-                        <tr key={app.id}>
+                  <Chip
+                    label={app.status}
+                    color={getStatusColor(app.status)}
+                  />
+                </Stack>
 
-                            <td>{app.id}</td>
+                <Typography>
+                  <strong>Application ID:</strong> {app.id}
+                </Typography>
 
-                            <td>{app.applicationType}</td>
+                <Typography>
+                  <strong>Certificate No:</strong>{" "}
+                  {app.certificateNumber || "Not Generated"}
+                </Typography>
 
-                            <td>{app.status}</td>
+                <Typography sx={{ mt: 1 }}>
+                  <strong>Status:</strong> {app.status}
+                </Typography>
 
-                            <td>{app.certificateNumber || "-"}</td>
+                <Stack spacing={1} sx={{ mt: 3 }}>
 
-                            <td>
+                  {app.status === "APPROVED" ? (
 
-                                {app.status === "APPROVED" ? (
+                    <Button
+                      variant="contained"
+                      startIcon={<DownloadIcon />}
+                      onClick={() => downloadCertificate(app.id)}
+                    >
+                      Download Certificate
+                    </Button>
 
-                                    <button
-                                        style={{
-                                            padding: "10px 18px",
-                                            background: "#1565C0",
-                                            color: "white",
-                                            border: "none",
-                                            borderRadius: "6px",
-                                            cursor: "pointer"
-                                        }}
-                                        onClick={() => downloadCertificate(app.id)}
-                                    >
-                                        📄 Download Certificate
-                                    </button>
+                  ) : (
 
-                                ) : (
+                    <Button
+                      variant="outlined"
+                      startIcon={<VerifiedIcon />}
+                      disabled
+                    >
+                      Waiting for Approval
+                    </Button>
 
-                                    <span style={{ color: "red" }}>
-                                        Waiting for Approval
-                                    </span>
+                  )}
 
-                                )}
+                </Stack>
 
-                            </td>
+              </CardContent>
 
-                        </tr>
+            </Card>
 
-                    ))}
+          </Grid>
 
-                </tbody>
+        ))}
 
-            </table>
+      </Grid>
 
-        </div>
-    );
+    </Container>
+  );
 }
 
 export default MyApplications;

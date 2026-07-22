@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+
 
 @Repository
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
@@ -14,4 +16,8 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     List<Application> findByStatus(String status);
 
 List<Application> findByApplicationType(String applicationType);
+Optional<Application> findByCitizenIdAndApplicationTypeAndStatusIn(
+        Long citizenId,
+        String applicationType,
+        List<String> statuses);
 }

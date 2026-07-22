@@ -6,7 +6,7 @@ function CitizenLogin() {
   const navigate = useNavigate();
 
   const [login, setLogin] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -20,7 +20,7 @@ function CitizenLogin() {
   const handleLogin = async () => {
     try {
       const data = await adminLogin(
-        login.username,
+        login.email,
         login.password
       );
 
@@ -30,21 +30,18 @@ function CitizenLogin() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.role);
       localStorage.setItem("userId", data.id);
-      localStorage.setItem("citizenId", data.id); // <-- Important
-      localStorage.setItem("username", data.username);
-
-      console.log("Stored citizenId:", localStorage.getItem("citizenId"));
-      console.log("Stored userId:", localStorage.getItem("userId"));
+      localStorage.setItem("citizenId", data.id);
+      localStorage.setItem("email", data.email);
+      localStorage.setItem("fullName", data.fullName);
 
       if (data.role === "CITIZEN") {
         navigate("/citizen-dashboard");
       } else {
         alert("Please login through the Citizen Portal.");
       }
-
     } catch (error) {
       console.error("Login Error:", error);
-      alert("Invalid Username or Password");
+      alert("Invalid Email or Password");
     }
   };
 
@@ -66,9 +63,10 @@ function CitizenLogin() {
           <h2>Citizen Login</h2>
 
           <input
-            name="username"
-            placeholder="Username"
-            value={login.username}
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={login.email}
             onChange={handleChange}
             style={input}
           />

@@ -18,6 +18,7 @@ public class CertificateController {
 
     public CertificateController(CertificateService certificateService) {
         this.certificateService = certificateService;
+        System.out.println("***** CertificateController Loaded *****");
     }
 
     @PostMapping
@@ -26,6 +27,20 @@ public class CertificateController {
 
         return ResponseEntity.ok(
                 certificateService.generateCertificate(request));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CertificateResponse>> getAllCertificates() {
+
+        return ResponseEntity.ok(
+                certificateService.getAllCertificates());
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Long> getCertificateCount() {
+
+        return ResponseEntity.ok(
+                certificateService.getCertificateCount());
     }
 
     @GetMapping("/{id}")
@@ -44,6 +59,21 @@ public class CertificateController {
                 certificateService.getCertificateByApplicationId(applicationId));
     }
 
+    @GetMapping("/{id}/download")
+    public ResponseEntity<byte[]> downloadCertificate(
+            @PathVariable Long id) throws Exception {
+
+        return certificateService.downloadCertificate(id);
+    }
+
+    @GetMapping("/verify/{certificateNumber}")
+    public CertificateResponse verifyCertificate(
+            @PathVariable String certificateNumber) {
+
+        return certificateService.getCertificateByCertificateNumber(
+                certificateNumber);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCertificate(
             @PathVariable Long id) {
@@ -52,23 +82,11 @@ public class CertificateController {
 
         return ResponseEntity.ok("Certificate deleted successfully.");
     }
-@GetMapping
-public ResponseEntity<List<CertificateResponse>> getAllCertificates() {
-    return ResponseEntity.ok(certificateService.getAllCertificates());
+    @GetMapping("/citizen/{citizenId}")
+public ResponseEntity<List<CertificateResponse>> getCertificatesByCitizen(
+        @PathVariable Long citizenId) {
+
+    return ResponseEntity.ok(
+            certificateService.getCertificatesByCitizenId(citizenId));
 }
-@GetMapping("/{id}/download")
-public ResponseEntity<byte[]> downloadCertificate(
-        @PathVariable Long id) throws Exception {
-
-    return certificateService.downloadCertificate(id);
-
-}
-@GetMapping("/verify/{certificateNumber}")
-public CertificateResponse verifyCertificate(
-        @PathVariable String certificateNumber) {
-
-    return certificateService
-            .getCertificateByCertificateNumber(certificateNumber);
-}
-
 }

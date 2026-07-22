@@ -1,26 +1,31 @@
 package com.civicpulse.reporting_service.service;
 
+import com.civicpulse.reporting_service.dto.DashboardResponse;
 import com.civicpulse.reporting_service.entity.CitizenReport;
 import com.civicpulse.reporting_service.entity.GrievanceReport;
 import com.civicpulse.reporting_service.repository.CitizenReportRepository;
 import com.civicpulse.reporting_service.repository.GrievanceReportRepository;
+
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import com.civicpulse.reporting_service.dto.DashboardResponse;
 
 @Service
 public class ReportingService {
 
     private final CitizenReportRepository citizenRepository;
     private final GrievanceReportRepository grievanceRepository;
+    private final RestTemplate restTemplate;
 
     public ReportingService(
             CitizenReportRepository citizenRepository,
-            GrievanceReportRepository grievanceRepository) {
+            GrievanceReportRepository grievanceRepository,
+            RestTemplate restTemplate) {
 
         this.citizenRepository = citizenRepository;
         this.grievanceRepository = grievanceRepository;
+        this.restTemplate = restTemplate;
     }
 
     public List<CitizenReport> getAllCitizens() {
@@ -29,33 +34,49 @@ public class ReportingService {
 
     public List<GrievanceReport> getAllGrievances() {
         return grievanceRepository.findAll();
-
     }
 
     public DashboardResponse getDashboard() {
 
-    long totalCitizens = citizenRepository.count();
+        long totalCertificates = 0;
 
-    long totalGrievances = grievanceRepository.count();
+        try {
+            Long count = restTemplate.getForObject(
+                    "http://certificate-service/certificates/count",
+                    Long.class);
 
-    long openGrievances = grievanceRepository.findAll()
-            .stream()
-            .filter(g -> "OPEN".equalsIgnoreCase(g.getStatus()))
-            .count();
+            if (count != null) {
+                totalCertificates = count;
+            }
 
-    long highPriorityGrievances = grievanceRepository.findAll()
-            .stream()
-            .filter(g -> "HIGH".equalsIgnoreCase(g.getPriority()))
-            .count();
+        } catch (Exception e) {
+            totalCertificates = 0;
+        }
 
-    return new DashboardResponse(
-            totalCitizens,
-            totalGrievances,
-            openGrievances,
-            highPriorityGrievances
-    );
-}
-public long getCitizenCount() {
-    return citizenRepository.count();
-}
+        long totalCitizens = citizenRepository.count();
+
+        long totalGrievances = grievanceRepository.count();
+
+        long openGrievances = grievanceRepository.findAll()
+                .stream()
+                .filter(g -> "OPEN".equalsIgnoreCase(g.getStatus()))
+                .count();
+
+        long highPriorityGrievances = grievanceRepository.findAll()
+                .stream()
+                .filter(g -> "HIGH".equalsIgnoreCase(g.getPriority()))
+                .count();
+
+        return new DashboardResponse(
+                totalCitizens,
+                totalGrievances,
+                openGrievances,
+                highPriorityGrievances,
+                totalCertificates
+        );
+    }
+
+    public long getCitizenCount() {
+        return citizenRepository.count();
+    }
 }

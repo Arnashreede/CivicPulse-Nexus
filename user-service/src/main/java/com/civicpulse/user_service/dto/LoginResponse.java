@@ -5,20 +5,20 @@ public class LoginResponse {
     private String token;
     private String role;
     private Long id;
-    private String username;
-    private String officerName;
+    private String email;
+    private String fullName;
 
     public LoginResponse(String token,
                          String role,
                          Long id,
-                         String username,
-                         String officerName) {
+                         String email,
+                         String fullName) {
 
         this.token = token;
         this.role = role;
         this.id = id;
-        this.username = username;
-        this.officerName = officerName;
+        this.email = email;
+        this.fullName = fullName;
     }
 
     public String getToken() {
@@ -45,19 +45,19 @@ public class LoginResponse {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String getOfficerName() {
-        return officerName;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setOfficerName(String officerName) {
-        this.officerName = officerName;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }
